@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Solver</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            text-align: center;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            font-size: 3em;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #ddd;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 400px;
+            background-color: #fff;
+            color: #333;
+            font-size: 1em;
+        }
+
+        button {
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin-top: 20px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+            button:hover {
+                background-color: #ff4757;
+                transform: scale(1.1);
+            }
+
+        pre {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid #ff6f61;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: auto;
+            color: #fff;
+            font-family: Consolas, monospace;
+            text-align: left;
+            width: 80%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            white-space: pre-wrap;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Решение СЛАУ методом LDL-разложения</h1>
+        <label for="csvFile">Загрузите CSV файл с матрицей и вектором:</label>
+        <input type="file" id="csvFile" accept=".csv"><br><br>
+        <button id="sendButton">Отправить</button>
+        <pre id="result">Результат будет здесь...</pre>
+    </div>
+
+    <script>
+        document.getElementById('sendButton').addEventListener('click', async () => {
+            const fileInput = document.getElementById('csvFile');
+
+            if (!fileInput.files[0]) {
+                alert('Выберите файл перед отправкой.');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('csvFile', file);
+
+            try {
+                const response = await fetch('/solve', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Ошибка при соединении с сервером.');
+                }
+
+                const result = await response.json();
+                document.getElementById('result').textContent =
+                    'Решение методом LDL-разложения: ' + result.Solution.join(', ');
+            } catch (error) {
+                console.error('Ошибка:', error);
+                document.getElementById('result').textContent = 'Ошибка при соединении с сервером.';
+            }
+        });
+    </script>
+</body>
+</html>
